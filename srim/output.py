@@ -5,8 +5,10 @@ TODO: Read header information
 import os
 import re
 from io import BytesIO
+from this import d
 
 import numpy as np
+import h5py
 
 from .core.ion import Ion
 
@@ -119,6 +121,39 @@ class Results(object):
         self.etorecoils = EnergyToRecoils(directory)
         self.phonons = Phonons(directory)
         self.range = Range(directory)
+
+
+    def h5_conv(self):
+        f = h5py.File("trim_results.h5","w")
+        ion = f.create_group("ion")
+        ion["atomic_number"] = self.vacancy.ion.atomic_number
+        ion["energy"] = self.vacancy.ion.energy
+        ion["mass"] = self.vacancy.ion.mass
+        ion["name"] = np.string_(self.vacancy.ion.name)
+        ion["symbol"] = np.string_(self.vacancy.ion.symbol)
+        f["num_ions"] = self.vacancy.num_ions
+        f["depth"] = self.vacancy.depth
+        vacancy = f.create_group("vacancy")
+        vacancy["ions"] = self.vacancy.knock_ons
+        vacancy["recoils"] = self.vacancy.vacancies
+
+        ionization = f.create_group("ionization")
+        ionization["ions"] = self.ioniz.ions
+        ionization["recoils"] = self.ioniz.recoils
+
+        phonon = f.create_group("phonon")
+        phonon["ions"] = self.phonons.ions
+        phonon["recoils"] = self.phonons.recoils
+
+        range = f.create_group("range")
+        range["ions"] = self.range.ions
+        range["recoils"] = self.range.elements # in case of many elements more than one columns ?????
+
+        energy_transf = f.create_group("en2recoil")
+        energy_transf["ions"] = self.etorecoils.ions
+        energy_transf["absorbed"] = self.etorecoils.absorbed
+
+        f.close()
 
 
 class Ioniz(SRIM_Output):
