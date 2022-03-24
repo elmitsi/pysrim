@@ -123,8 +123,8 @@ class Results(object):
         self.range = Range(directory)
 
 
-    def h5_conv(self):
-        f = h5py.File("trim_results.h5","w")
+    def Save_h5(self, outname):
+        f = h5py.File(outname,'.h5',"w")
         ion = f.create_group("ion")
         ion["atomic_number"] = self.vacancy.ion.atomic_number
         ion["energy"] = self.vacancy.ion.energy
